@@ -45,3 +45,12 @@ Ans: Five minutes
 
 ## Q16) Which keyword is used to conditionally executes a step based on a specific expression or condition?
 Ans: If
+
+## Q17) What is the GITHUB_TOKEN secret used for in a workfly?
+Ans: To authenticate on behalf of GitHub Action.
+
+## Q18) Which YAML keyword is used to specify the event that trigger a workflow?
+Ans: On ( This allow you to define the specific events, such as pull, push or other custom events.)
+
+## Q19) Where can you set custom environment variable in a workflow?
+Ans: in a workflow file
