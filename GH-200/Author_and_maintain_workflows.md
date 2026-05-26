@@ -27,3 +27,15 @@ Ans: Maven and Gradle two package manager for Java, NuGet the .NET package manag
 
 ## Q10) When might it be appropriate to use a combination of GitHub-hosted and self-hosted runners in a workflow?
 Ans: when dealing with resource-intensive tasks
+
+## Q11) How can you ensure a script file in your repository is executable in a workflow job?
+Ans : by manually granting executive permission to the script file on the runner
+
+## Q12) what is the purpose of caching dependency in GitHub Action Workflows?
+Ans: decreass network utilisation, runtime and cost.
+
+## Q13) What is the primary purpose of dependent jobs in a workflow?
+Ans: to define sequential execution order within a workflow 
+
+## Q14) How can the retension period for artifact be customized.
+Ans: custom retension period can be defined for individual artifact using the actions/upload-artifact action
