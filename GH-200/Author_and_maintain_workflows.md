@@ -54,3 +54,11 @@ Ans: On ( This allow you to define the specific events, such as pull, push or ot
 
 ## Q19) Where can you set custom environment variable in a workflow?
 Ans: in a workflow file
+
+## Q20) How do custom labwls determine the eligibility of a self hosted runner to process a job?
+Ans: Custom labels are cumulative and runner must have all assigned labels to be eligible.
+
+## Q21) How does the cache action in GitHub action handle a cache miss?
+Ans: by automatic creating new cache if a job completed successfully.
+
+## Q22) 
