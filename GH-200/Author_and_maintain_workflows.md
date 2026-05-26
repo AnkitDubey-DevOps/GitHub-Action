@@ -39,3 +39,9 @@ Ans: to define sequential execution order within a workflow
 
 ## Q14) How can the retension period for artifact be customized.
 Ans: custom retension period can be defined for individual artifact using the actions/upload-artifact action
+
+## Q15) What is the minimum time granularity available for scheduling GitHub Actions?
+Ans: Five minutes
+
+## Q16) Which keyword is used to conditionally executes a step based on a specific expression or condition?
+Ans: If
