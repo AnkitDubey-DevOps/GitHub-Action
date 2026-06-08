@@ -97,4 +97,39 @@ Ans : environment-level (If a variable with the same name exists at multiple lev
 ## Q22) Which of the following statements are true regarding GitHub default environment variables?
 Ans: default environment variables are all uppercase, default environment variables are available to every step in a workflow and default environment variables are not accessible through the env context
 
-## Q23)
+## Q23) John has configured his workflow to save artifacts created from the build job. Where can John access the artifacts from the GitHub user interface that were saved within the build job?
+Ans : from the Artifacts section within the Actions workflow run
+
+## Q24) What status should you filter on to see only failed workflow runs on the GitHub Actions tab?
+Ans : failure
+
+## Q25) Which of the following events can trigger workflows? (select three)
+Ans : when a discussion is created, when a commit is pushed to the repository and when a GitHub issue is created
+
+## Q26) For an action that was triggered on: pull request, where can you see the workflow run status? (select three)
+Ans: on the Checks tab of the pull request, from the Actions tab of the repository and in a pull request before a merge
+
+## Q27) What additional steps does GitHub add to each job in a workflow run?
+Ans: "Set up job" and "Complete job"
+
+## Q28) Ryan is looking for the GitHub Actions workflow files for his repository. Where should he look?
+Ans : the .github/workflows directory of the repository
+
+## Q29) Which API does GitHub Actions use to output statuses, results, and logs for a workflow?
+Ans: Checks API : The Checks API is the correct choice because GitHub Actions use this API to output statuses, results, and logs for a workflow. It allows workflows to create detailed status checks, annotations, and summaries for each job and step in the workflow, providing visibility into the execution and results of the workflow.
+
+Other Concept:
+
+Health API : The Health API in GitHub is used to check the health status of GitHub services and systems, providing information on the operational status of GitHub's infrastructure
+Actions API : The Actions API in GitHub is used to interact with GitHub Actions workflows, such as triggering workflows, listing workflow runs, and getting workflow run details.
+Logs API: It is more focused on accessing and managing log data generated during workflow execution.
+
+## Q30) What is the filename of the metadata file that defines the inputs, outputs, and runs configuration for your action?
+Ans : action.yaml
+
+## Q31) After creating a new workflow, GitHub Actions will suggest starter workflows for your repository. What option should you click on if there is a starter workflow that you want to use?
+Ans : Configure
+
+## Q32) What level of access is required to download workflow artifacts?
+Ans: read
+
