@@ -142,3 +142,7 @@ Ans: on:
 other concepts:
 run: ( Used to define the action that should be executed as a part of specific job within workflow.)
 when: ( Used to define the Condition under which job run within the workflow such as success, failure and always.)
+
+## Q35) If an organization's templated workflow contains secret information such as `${{ secrets.token }}`, what needs to be configured before using the workflow?
+
+Ans: Create a repository secret named `token`
