@@ -45,3 +45,274 @@ Ans : --check
 
 Other Concepts:
 --diag : It is more commonly used for diagnostic purposes to identify and troubleshoot issues within the GitHub Actions environment.
+
+## Q13) You're assisting a colleague who wants to understand the differences between GitHub-hosted runners and self-hosted runners. They must choose the best option for running their team's GitHub Actions workflows. What key points would you include in your explanation to differentiate these two runner types effectively? (select three)
+Ans : Self-host runners often run on a persistent environment and can, if desired, retain custom configurations, software, and caching between jobs.
+Self-hosted runners enable access to resources within your private network, unlike GitHub-hosted runners
+Github-hosted runners use an ephemeral environment, which means each job typically runs on a fresh virtual machine, which means you start with a clean slate every time.
+
+## Q14) As an enterprise owner, you want to restrict the use of GitHub Actions within your organization but still allow access to essential workflows. Which of the following configurations would achieve this goal?
+
+Ans : enforce a policy to allow only local actions and reusable workflows
+
+## Q15) What network requirement is necessary for self-hosted runners in GitHub Actions for connectivity to GitHub?
+Ans : permitting outbound connectivity to GitHub hosts using long polling
+
+
+
+# Concepts for the Manage GitHub Action workflow for enterprises
+
+
+** Enterprise = org-level policies, runner groups, and governance.
+
+## Runners
+### GitHub-Hosted Runner
+Virtual machine provided by GitHub; choose OS (`ubuntu-latest`, `windows-latest`, `macos-latest`), no setup needed, deleted after each job.
+
+### Self-Hosted Runner
+Your own machine connected to GitHub; used for custom software, private networks, special hardware, or cost control.
+
+### Runner Group
+An org/enterprise-level way to organize self-hosted runners. You assign runners to groups and control which repos can use which group. Prevents untrusted repos from accessing sensitive runners.
+
+### Toolcache
+Pre-installed tools on GitHub-hosted runners (Node.js, Python, Java, etc.) to speed up workflow execution.
+
+## Secrets & Variables
+
+### Secret
+Encrypted value used for sensitive data (tokens, passwords); hidden in logs and accessed with `${{ secrets.NAME }}`.
+
+### Variable (Non-Secret)
+Plain-text configuration value for non-sensitive data; visible in logs and accessed with `${{ vars.NAME }}`.
+
+### Environment Secret
+A secret tied to a specific environment (e.g., Production); available only when a job uses that environment.
+
+### Secret Scoping
+Determines where a secret is defined and which value is used when the same secret exists at multiple levels.
+
+## Environments & Policies
+
+### Deployment Environment
+A protected deployment target (e.g., Production) that can require approvals before deployment.
+
+#### Example
+```yaml
+environment: production
+```
+
+A manager must approve before the deployment starts.
+
+### GITHUB_TOKEN Permissions
+Controls what the workflow token can do (read code, create PRs, etc.).
+
+#### Example
+```yaml
+permissions:
+  contents: read
+```
+
+The workflow can only read repository contents.
+
+### Action Allow/Deny Policy
+Controls which GitHub Actions repositories are allowed to be used in workflows.
+
+### Workflow Permissions Policy
+Forces workflows to explicitly declare required permissions.
+
+#### Example
+```yaml
+permissions:
+  contents: read
+  issues: write
+```
+
+Without declaring permissions, the workflow may be blocked.
+
+## REST API & Governance
+
+### Workflow API
+GitHub REST API used to manage workflows programmatically.
+
+### Secrets API
+Used to create, update, or delete secrets through automation.
+
+### Audit Log
+Records security-related activities performed by users and admins.
+
+### GITHUB_TOKEN
+
+An automatic token created for every workflow run to access the current repository.
+
+#### Example
+
+```yaml
+run: gh issue list
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Used for:
+- Creating issues
+- Creating PRs
+- Accessing repository data
+
+⚠️ Expires when the workflow finishes.
+
+### Least Privilege Principle
+Give workflows only the minimum permissions they need.
+
+#### Good Example
+
+```yaml
+permissions:
+  contents: read
+```
+
+Workflow only reads code.
+
+### OIDC Federation
+Allows GitHub Actions to access AWS, Azure, or GCP without storing cloud credentials as secrets.
+
+#### Example
+
+Workflow gets a temporary token from GitHub and exchanges it for AWS access.
+
+```yaml
+permissions:
+  id-token: write
+```
+
+No AWS access key stored in GitHub.
+
+### id-token Permission
+Required permission for a workflow to request an OIDC token from GitHub.
+
+#### Example
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+```
+
+Without `id-token: write`, OIDC authentication won't work.
+
+### Why OIDC is Better than Secrets
+OIDC uses short-lived tokens instead of long-lived cloud credentials.
+
+#### Example
+
+❌ Traditional Secret
+
+```text
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+```
+
+Valid until manually rotated.
+
+✅ OIDC
+
+```text
+Temporary token
+```
+
+Expires automatically after a few minutes.
+
+## Preventing Secret Leakage
+
+### Script Injection
+A security risk where untrusted input is executed as shell commands inside a `run:` step.
+
+#### Unsafe Example
+
+```yaml
+run: echo ${{ github.event.issue.title }}
+```
+
+If the issue title contains malicious commands, they may execute.
+
+### Safe Pattern
+Store user input in an environment variable first, then use the variable.
+
+#### Safe Example
+
+```yaml
+env:
+  TITLE: ${{ github.event.issue.title }}
+
+run: echo "$TITLE"
+```
+
+GitHub treats it as data instead of code.
+
+## Artifact Attestations
+
+### Artifact Attestation
+A signed proof that shows exactly which workflow, code, and build created an artifact.
+
+#### Example
+
+```yaml
+uses: actions/attest-build-provenance@v1
+```
+
+Verifies:
+- Who built it
+- When it was built
+- Which commit/workflow created it
+
+### Supply Chain Security
+Protects software from tampering by verifying that artifacts come from trusted builds.
+
+#### Example
+
+Without Attestation:
+
+```text
+app.zip
+```
+
+No proof of origin.
+
+With Attestation:
+
+```text
+app.zip + signed provenance
+```
+
+Users can verify it was built by your GitHub workflow.
+
+## Performance Optimization
+
+### Caching Strategy
+Stores dependencies between workflow runs to avoid downloading them again.
+
+### Concurrency Control
+Prevents multiple runs of the same workflow from running simultaneously.
+
+#### Example
+
+```yaml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+```
+
+When a new commit is pushed, the old run is canceled.
+
+### max-parallel
+Limits how many matrix jobs can run at the same time.
+
+#### Example
+
+```yaml
+strategy:
+  matrix:
+    os: [ubuntu, windows, macos]
+  max-parallel: 2
+```
+
+Only 2 matrix jobs run simultaneously.
