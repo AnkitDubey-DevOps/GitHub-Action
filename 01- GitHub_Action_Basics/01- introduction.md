@@ -1,273 +1,613 @@
-# Introduction to GitHub Actions
+# GH-200 GitHub Actions Quick Notes
 
-GitHub Actions are one of the most powerful and helpful features of GitHub. They allow developers to automate workflows directly from their repositories. With GitHub Actions, you can build, test, and deploy applications automatically whenever changes are pushed to your codebase.
+## 1. Workflow
 
-In addition to automation, GitHub Actions can also help with:
+A **workflow** is the complete automation process.
 
-- Performing code reviews and automated testing
-- Managing branches and pull requests
-- Triaging issues
-- Running scheduled tasks
-- Deploying applications to cloud platforms
+Example:
 
-## How GitHub Actions Work
+- Build application
+- Run tests
+- Deploy application
 
-In simple terms, a GitHub workflow creates an environment using a virtual machine (called a **runner**) to test, build, and deploy your code. The workflow follows instructions defined inside a GitHub Actions workflow file.
+Stored in:
 
-These workflow files are written in YAML format and stored inside the repository under:
-
-```bash
-.github/workflows/
-
-
-# Key GitHub Actions Concepts
-
-Before creating GitHub Actions workflows, it’s important to understand the core concepts that power GitHub Actions.
-
----
-
-# Workflows
-
-A **workflow** is a configurable automated process that runs one or more jobs. Workflows are defined using YAML files inside your repository and are triggered by events.
-
-You can also trigger workflows:
-
-- Manually
-- On a schedule
-- Through repository events
-
-Workflow files are stored in the following directory:
-
-```bash
-.github/workflows/
+```text
+.github/workflows/build.yml
 ```
 
-A repository can contain multiple workflows, each handling different tasks such as:
-
-- Building and testing pull requests
-- Deploying applications to the cloud
-- Running tests on every pull request
-- Automating issue management
+Think: **Workflow = Entire pipeline**
 
 ---
 
-# Events
+## 2. Trigger
 
-An **event** is a specific activity in a repository that triggers a workflow.
+A trigger decides **when a workflow starts**.
 
-For example:
+### push
 
-- Pushing code triggers the `push` event
-- Creating an issue triggers the `issues` event
-- Opening a pull request triggers the `pull_request` event
-
-## Common GitHub Action Events
-
-Some frequently used GitHub Action events include:
-
-- `push`
-- `pull_request`
-- `release`
-- `issues`
-- `milestone`
-- `label`
-
-The most commonly used events are:
-
-- `push`
-- `release`
-- `pull_request`
-
-You can learn more about events in the official GitHub documentation.
-
----
-
-## Example: Defining Events in a Workflow
+Runs when code is pushed.
 
 ```yaml
-# .github/workflows/demo.yml
-
 on:
-  issues:
-    types: [opened, edited, milestoned]
+  push:
+```
 
+---
+
+### pull_request
+
+Runs when a Pull Request is created or updated.
+
+```yaml
+on:
   pull_request:
-    types:
-      - opened
-    branches:
-      - 'releases/**'
 ```
 
-## Why Specify Event Types?
-
-It is considered a best practice to specify event activity types. If you don’t define them, GitHub Actions may run more frequently than necessary, consuming additional resources.
-
-For example:
-
-- Defining the `pull_request` event with `opened` ensures the workflow only runs when a pull request is created.
-- Without specifying the type, the workflow could run on every pull request activity.
-
 ---
 
-# Jobs
+### workflow_dispatch
 
-A workflow contains one or more **jobs**.
-
-Each job:
-
-- Runs in a runner environment
-- Contains multiple steps
-- Executes commands or actions
-
-By default, GitHub Actions jobs run **in parallel** unless dependencies are specified.
-
----
-
-## Example: Workflow Structure
+Manual execution.
 
 ```yaml
-# .github/workflows/demo.yml
-
-name: Demo Workflows
-
 on:
-  push:
-
-jobs:
+  workflow_dispatch:
 ```
 
----
-
-## Job Dependencies
-
-You can make one job depend on another using the `needs` keyword.
-
-If jobs have no dependencies, they run in parallel.
-
-If a job depends on another job, it waits until the dependent job completes successfully.
+Think: "Run Workflow" button.
 
 ---
 
-## Example: Job Dependencies
+### schedule
+
+Runs on a schedule.
 
 ```yaml
-# .github/workflows/demo.yml
+on:
+  schedule:
+```
 
+Think: Cron job.
+
+---
+
+### workflow_call
+
+Allows one workflow to call another workflow.
+
+Think: Reusable workflow.
+
+---
+
+## 3. Job
+
+A workflow contains one or more jobs.
+
+```text
+Workflow
+ ├── Build Job
+ ├── Test Job
+ └── Deploy Job
+```
+
+```yaml
 jobs:
   build:
-    name: Build
-    needs: [Development]
-    steps:
-      - name: Build and deploy on Cloud
-
-  dev:
-    name: Development
-    steps:
-      - name: Run the developer
-
-  Test:
-    needs: [build, dev]
-    name: Testing
-    steps:
-      - name: Testing the application
 ```
 
-In this example:
-
-- `build` depends on `Development`
-- `Test` depends on both `build` and `dev`
+Think: **Job = Major phase of workflow**
 
 ---
 
-# Runners
+## 4. Step
 
-**Runners** are servers that execute workflows when they are triggered.
+A job contains multiple steps.
 
-Each runner can handle only one job at a time.
-
-GitHub provides hosted runners for:
-
-- Ubuntu Linux
-- Windows
-- macOS
-
----
-
-## Example: Using a Runner
+```text
+Build Job
+ ├── Checkout Code
+ ├── Install Dependencies
+ └── Build Application
+```
 
 ```yaml
-# .github/workflows/demo.yml
-
-name: Demo workflows
-
-on:
-  push:
-    branches: ["main"]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
+steps:
 ```
 
-Here:
+Think: **Step = Single task**
+
+---
+
+## 5. Runner
+
+A runner is the machine that executes the workflow.
+
+```text
+Workflow
+    ↓
+Runner
+    ↓
+Commands Execute
+```
+
+Think: **Runner = Machine**
+
+---
+
+## 6. GitHub-hosted Runner
+
+GitHub provides the machine.
 
 ```yaml
 runs-on: ubuntu-latest
 ```
 
-specifies that the workflow should run on the latest Ubuntu runner.
+Features:
+
+- Automatically created
+- Automatically deleted
+- No maintenance required
+
+Think: **Managed by GitHub**
 
 ---
 
-## Runner Syntax
+## 7. Self-hosted Runner
 
-You can define runners as:
+You provide and manage the machine.
 
-### Single String
+Examples:
+
+- VM
+- Physical Server
+- Laptop
+
+Benefits:
+
+- Full control
+- Access internal network
+
+Think: **Managed by You**
+
+---
+
+## 8. Action
+
+An action is reusable code.
+
+Example:
 
 ```yaml
-runs-on: ubuntu-latest
+uses: actions/checkout@v4
 ```
 
-### Array of Strings
+Think: **Action = Reusable automation**
+
+---
+
+## 9. actions/checkout
+
+Downloads repository code onto runner.
 
 ```yaml
-runs-on: [ubuntu-latest, windows-latest, macos-latest]
+uses: actions/checkout@v4
+```
+
+Without checkout:
+
+- Source code is not available
+
+Think: **Checkout = Download code**
+
+---
+
+## 10. needs
+
+Creates dependency between jobs.
+
+```yaml
+test:
+  needs: build
+```
+
+Meaning:
+
+- Build runs first
+- Test runs after Build succeeds
+
+Think: **needs = Run after**
+
+---
+
+## 11. if Condition
+
+Controls execution.
+
+```yaml
+if: github.ref == 'refs/heads/main'
+```
+
+Meaning:
+
+- Run only on main branch
+
+Think: **if = Conditional execution**
+
+---
+
+## 12. Context
+
+GitHub-provided information available during workflow execution.
+
+### github Context
+
+```yaml
+github.actor
+github.repository
+github.ref
+```
+
+Examples:
+
+- User who triggered workflow
+- Repository name
+- Branch name
+
+---
+
+### runner Context
+
+```yaml
+runner.os
+```
+
+Returns:
+
+```text
+Linux
+Windows
+macOS
 ```
 
 ---
 
-# How to Create a GitHub Action in Your Repository
+### env Context
 
-You can create a GitHub Action in two main ways:
+```yaml
+env.APP_NAME
+```
 
-1. Using the GitHub UI
-2. Using your local IDE
-
----
-
-## Using the GitHub UI
-
-Many developers use the GitHub interface to create workflows because it is simple and beginner-friendly.
-
-### Advantages
-
-- No need to manually create the `.github/workflows` directory
-- GitHub automatically generates the required folder structure
-- Easy setup for basic workflows
+Access environment variables.
 
 ---
 
-## Using a Local IDE
+### secrets Context
 
-For more advanced or complex workflows, developers typically use an IDE locally.
+```yaml
+secrets.API_KEY
+```
 
-### Advantages
-
-- Better control over workflow files
-- Easier debugging and version management
-- Suitable for larger projects and custom automation
+Access secrets.
 
 ---
 
-Now that you understand the key components of GitHub Actions, the next step is learning how to create workflows in practice.
+## 13. Environment Variable
+
+Stores non-sensitive values.
+
+```yaml
+env:
+  APP_NAME: MyApp
+```
+
+Examples:
+
+- Application name
+- Environment name
+- Version number
+
+Think: **Variable = Normal data**
+
+---
+
+## 14. Secret
+
+Stores sensitive information.
+
+Examples:
+
+- Passwords
+- Tokens
+- API Keys
+
+Usage:
+
+```yaml
+${{ secrets.DB_PASSWORD }}
+```
+
+Think: **Secret = Sensitive data**
+
+---
+
+## 15. GITHUB_TOKEN
+
+Automatically generated authentication token.
+
+Usage:
+
+```yaml
+${{ secrets.GITHUB_TOKEN }}
+```
+
+Uses:
+
+- Access repository
+- Create releases
+- Update pull requests
+
+Think: **Built-in authentication**
+
+---
+
+## 16. Artifact
+
+Stores files after workflow execution.
+
+Example:
+
+```text
+Build Application
+      ↓
+app.zip
+      ↓
+Store as Artifact
+```
+
+Uses:
+
+- Build outputs
+- Test reports
+- Log files
+
+Think: **Artifact = Saved output files**
+
+---
+
+## 17. Cache
+
+Stores dependencies for future runs.
+
+Without cache:
+
+```text
+npm install
+3 minutes
+```
+
+With cache:
+
+```text
+npm install
+15 seconds
+```
+
+Uses:
+
+- npm packages
+- Maven dependencies
+- Gradle dependencies
+
+Think: **Cache = Saved dependencies**
+
+---
+
+## Artifact vs Cache
+
+| Artifact | Cache |
+|-----------|--------|
+| Stores outputs | Stores dependencies |
+| Download later | Speeds future runs |
+| app.zip | node_modules |
+
+---
+
+## 18. Matrix Strategy
+
+Runs same job with multiple configurations.
+
+Example:
+
+```yaml
+matrix:
+  node-version: [18, 20, 22]
+```
+
+Creates:
+
+```text
+Job 1 → Node 18
+Job 2 → Node 20
+Job 3 → Node 22
+```
+
+Think: **Matrix = Parallel variations**
+
+---
+
+## 19. Reusable Workflow
+
+Allows reuse of an entire workflow.
+
+Called using:
+
+```yaml
+workflow_call
+```
+
+Think:
+
+```text
+Reuse Jobs
+Reuse Workflow Logic
+```
+
+---
+
+## 20. Composite Action
+
+Allows reuse of multiple steps.
+
+Example:
+
+```text
+Install Java
+Build App
+Run Tests
+```
+
+Bundle into one action.
+
+Think:
+
+```text
+Reuse Steps
+```
+
+---
+
+## Reusable Workflow vs Composite Action
+
+| Reusable Workflow | Composite Action |
+|-------------------|------------------|
+| Reuse jobs | Reuse steps |
+| Uses workflow_call | Uses action.yml |
+| Full workflow reuse | Step reuse |
+
+---
+
+## 21. Docker Action
+
+Action packaged inside a Docker container.
+
+Benefits:
+
+- Consistent environment
+- Dependency isolation
+
+Think:
+
+```text
+Action runs inside container
+```
+
+---
+
+## 22. JavaScript Action
+
+Action written in JavaScript.
+
+Example:
+
+```text
+index.js
+```
+
+Runs directly on runner.
+
+Think:
+
+```text
+Action written in JavaScript
+```
+
+---
+
+## 23. OIDC (OpenID Connect)
+
+Secure cloud authentication without storing passwords.
+
+Old Method:
+
+```text
+Store AWS password in GitHub Secret
+```
+
+OIDC Method:
+
+```text
+GitHub proves identity
+Cloud trusts GitHub
+Temporary credentials issued
+```
+
+Benefits:
+
+- No stored credentials
+- Better security
+
+Think:
+
+```text
+Login without storing secrets
+```
+
+---
+
+## 24. Environment Protection
+
+Protects environments like Production.
+
+Example:
+
+```text
+Deploy to Production
+      ↓
+Approval Required
+      ↓
+Deployment Continues
+```
+
+Uses:
+
+- Manual approval
+- Protected deployments
+
+Think:
+
+```text
+Approval before deployment
+```
+
+---
+
+## 25. Concurrency
+
+Prevents duplicate workflow executions.
+
+Without concurrency:
+
+```text
+5 Commits
+↓
+5 Deployments
+```
+
+With concurrency:
+
+```text
+5 Commits
+↓
+Cancel old runs
+↓
+Keep latest run
+```
+
+Think:
+
+```text
+Only latest run matters
+```
+
+---
