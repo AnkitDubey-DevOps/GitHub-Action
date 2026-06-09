@@ -146,3 +146,21 @@ when: ( Used to define the Condition under which job run within the workflow suc
 ## Q35) If an organization's templated workflow contains secret information such as `${{ secrets.token }}`, what needs to be configured before using the workflow?
 
 Ans: Create a repository secret named `token`
+
+## Q36) Which default environment variable contains the operating system of the runner executing the job?
+Ans: 
+
+```text
+RUNNER_OS
+```
+`RUNNER_OS` tells you which operating system the GitHub Actions runner is using.
+
+Possible values:
+
+```text
+Linux
+Windows
+macOS
+```
+**RUNNER_DEBUG** → Indicates whether runner debug logging is enabled
+**RUNNER_ARCH** → Contains CPU architecture (X64, ARM64), not OS
