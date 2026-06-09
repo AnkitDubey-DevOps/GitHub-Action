@@ -133,3 +133,12 @@ Ans : Configure
 ## Q32) What level of access is required to download workflow artifacts?
 Ans: read
 
+## Q33) On a Github hosted runner, what is the recorded in the "Set up Job " Steps of given job?
+Ans: Operating system, Runner and Github Token permission 
+
+## Q34) Which keyword in GitHub Workflow configuration is used to match a triggering event?
+Ans: on:
+
+other concepts:
+run: ( Used to define the action that should be executed as a part of specific job within workflow.)
+when: ( Used to define the Condition under which job run within the workflow such as success, failure and always.)
